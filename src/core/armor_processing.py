@@ -74,6 +74,11 @@ def process_api_data(profile_data, manifest_db):
                     is_artifice = True
                     break
 
+            is_exotic = False
+            exotic_check = item_def.get('inventory', {}).get('tierType') == EXOTIC_TIER_TYPE
+            if exotic_check:
+                is_exotic = True
+
             # --- UPDATED TIER LOGIC ---
             tier = 0
             stats_series = pd.Series(base_stats)
@@ -101,6 +106,7 @@ def process_api_data(profile_data, manifest_db):
                 "Total": base_total, # Use the calculated base total
                 "Tier": tier,
                 "Artifice": is_artifice,
+                "Exotic": is_exotic,
                 **base_stats # Use the calculated base stats
             })
     

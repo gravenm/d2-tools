@@ -10,7 +10,7 @@ def setup_logger():
     """Sets up a colored logger."""
     logger = logging.getLogger(__name__)
     if not logger.handlers:
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.INFO)
         handler = logging.StreamHandler()
         formatter = colorlog.ColoredFormatter(
             '%(log_color)s%(levelname)-8s%(reset)s %(message)s',

@@ -72,7 +72,7 @@ else:
                 st.header("⚙️ Weight Controls")
                 with st.expander("General Weights"):
                     st.session_state.weights['BST'] = st.slider("Total Stat Weight", 0.0, 2.0, st.session_state.weights['BST'], 0.1)
-                    st.session_state.weights['Artifice'] = st.slider("Artifice Bonus", 0.0, 10.0, st.session_state.weights['Artifice'], 0.1)
+                    st.session_state.weights['Artifice'] = st.slider("Artifice Bonus", 0.0, 2.0, st.session_state.weights['Artifice'], 0.1)
                 
                 with st.expander("Archetype Weights"):
                     for name in st.session_state.archetype_weights:
@@ -106,6 +106,7 @@ else:
             all_tiers = ['All'] + list(ranked_df['Tier'].unique())            
             selected_class = st.selectbox("Filter by Class", all_classes)
             selected_tier = st.selectbox("Filter by Tier", all_tiers)
+            selected_exotics = st.checkbox("Show Exotics", bool)
             
             if selected_class != 'All' and selected_tier != 'All':
                 display_df = ranked_df[ranked_df['Equippable'] == selected_class]
@@ -117,11 +118,14 @@ else:
             else:            
                 display_df = ranked_df
 
+            if selected_exotics == False:
+                display_df = display_df[display_df["Exotic"] == False]
+
             st.header("Armor Rankings")
             tab1, tab2 = st.tabs(["📊 Ranked Armor Data", "📈 Summary Statistics"])
 
             with tab1:
-                st.dataframe(display_df[['Name', 'Total', 'Tier', 'Equippable', 'Armor_Weight', 'Weapons', 'Health', 'Class', 'Grenade', 'Super', 'Melee','Id']].style.format({'Armor_Weight': "{:.2f}"}),hide_index=True)
+                st.dataframe(display_df[['Exotic','Name', 'Total', 'Tier', 'Equippable', 'Armor_Weight', 'Weapons', 'Health', 'Class', 'Grenade', 'Super', 'Melee','Id']].style.format({'Armor_Weight': "{:.2f}"}),hide_index=True)
 
                 st.subheader("Shard Assistant")
                 num_to_shard = st.slider("Number of items to shard", 1, 50, 20)
@@ -143,7 +147,7 @@ else:
                 count_by_class.columns = ['Equippable', 'Count']
                 st.bar_chart(count_by_class, x='Equippable', y='Count')
 
-                st.subheader("Tiers per Class")
+                st.subheader("Tiers")
                 count_by_tier = ranked_df['Tier'].value_counts().reset_index()
                 count_by_tier.columns = ['Tier','Count']
                 st.bar_chart(count_by_tier, x='Tier', y='Count',horizontal=True)
