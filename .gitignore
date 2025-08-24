@@ -334,3 +334,5 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 trash/
+*world_sql_content*
+.streamlit/

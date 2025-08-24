@@ -1,58 +1,103 @@
-# Destiny 2 Armor Analyzer 🛡️
+Destiny 2 Live Armor Analyzer 🛡️
 
-This is an interactive web application built with Streamlit that helps Destiny 2 players analyze and rank their armor based on a customizable weighting system. Upload your armor data exported from Destiny Item Manager (DIM), and use the interactive controls to find your best pieces for any build.
+This is an interactive web application built with Streamlit that connects directly to the Bungie.net API to analyze and rank your in-game armor. It fetches your live vault data and applies a deeply customizable weighting system to help you find your best gear for any build, identify valuable legacy armor, and clean out your vault with confidence.
+✨ Features
 
----
+    Live API Integration: No more manual CSV exports. The app securely authenticates with your Bungie.net account to fetch your live vault inventory.
 
-## ✨ Features
+    Base Stat Calculation: Automatically identifies and subtracts bonuses from mods and masterworks to calculate the true, unmodified base stats of your armor.
 
-* **Customizable Weighting:** Use sidebar sliders to adjust the importance of Base Stat Total (BST), Artifice bonuses, Tier bonuses, and specific stat combinations.
-* **Archetype Bonuses:** Reward armor with stat "spikes" that match predefined build archetypes (e.g., "Grenadier," "Brawler").
-* **Legacy Armor Support:** A special weighting system for "Armor 2.0" (Tier 0) pieces that have rare "illegal" stat combinations.
-* **Interactive Filtering:** Easily filter your ranked armor by class (Titan, Hunter, Warlock).
-* **Session Persistence:** Your slider and toggle settings are saved for your entire browser session, so you don't lose your configuration.
-* **Shard Assistant:** Quickly generate a list of your lowest-ranked armor IDs, formatted for easy use with in-game item managers.
-* **Data Visualization:** View summary charts showing the average armor weight and total piece count per class.
+    Advanced Weighting System: A powerful and fully customizable scoring system with sliders and toggles for:
 
----
+        Base Stat Total (BST): Prioritize raw stat totals.
 
-## ⚙️ How It Works
+        Artifice Armor: Give a special bonus to armor with an extra mod slot.
 
-The application calculates a final **Armor Weight** score for each piece of armor. This score is the sum of several weighted components:
+        Tier Bonuses: Reward high-stat seasonal armor (Tiers 1-5).
 
-1.  **Base Stat Total (BST):** The foundation of the score, directly scaled by the "BST Weight" slider.
-2.  **Artifice Bonus:** A flat bonus if the armor is an Artifice piece.
-3.  **Tier Bonus:** A bonus for armor in Tiers 1-5, with a higher bonus for pieces in the upper half of their stat range.
-4.  **Archetype Spike Bonus:** A bonus for armor with significant spikes in two stats that match a defined archetype.
-5.  **Illegal Combo Bonus (Tier 0 Only):** A bonus for legacy armor with high values in two stats that are normally in different pools.
+        Archetype Spikes: Assign value to armor that fits specific playstyles (e.g., "Grenadier," "Brawler") by having high spikes in two key stats.
 
-By adjusting the sliders in the sidebar, you can change how much each of these components contributes to the final score, allowing you to tailor the rankings to your personal preferences.
+        Illegal Combos: A special bonus for rare "Armor 2.0" (Tier 0) pieces with high stats in normally incompatible slots.
 
----
+    Exotic Identification: Automatically detects Exotic armor and highlights it in the results table for easy visibility.
 
-## 🚀 How to Use
+    Interactive UI:
 
-1.  **Prerequisites:** Make sure you have Python and the required libraries installed.
-    ```bash
-    pip install streamlit pandas colorlog
-    ```
+        Dynamic Filtering: Filter your ranked armor by class and tier.
 
-2.  **Export Your Armor:**
-    * Go to [Destiny Item Manager (DIM)](https://app.destinyitemmanager.com/).
-    * In the "Organizer" tab, select all your armor.
-    * Click the three-dots menu and choose "Export as CSV."
-    * Save the file as `destiny-armor.csv` or a similar name.
+        Session Persistence: Your custom weight settings are saved for your entire browser session.
 
-3.  **Run the App:**
-    * Save the application code as a Python file (e.g., `app.py`).
-    * Open your terminal or command prompt.
-    * Navigate to the directory where you saved the file.
-    * Run the following command:
-        ```bash
-        streamlit run app.py
-        ```
+        Shard Assistant: A slider-based tool to generate a DIM-compatible search query for your lowest-ranked items.
 
-4.  **Analyze Your Armor:**
-    * The application will open in your web browser.
-    * Use the file uploader in the sidebar to upload your armor CSV file.
-    * Adjust the weights and filters to rank your armor.
+        Data Visualization: Summary charts showing average armor weight and piece count per class.
+
+    Debug Logging: Outputs detailed processing steps to both the console and a d2_analyzer.log file for troubleshooting.
+
+🚀 Setup and Usage
+1. Prerequisites
+
+    Python 3.8+
+
+    A Bungie.net account with a registered application.
+
+2. Bungie.net API Setup
+
+    Go to the Bungie.net Developer Portal and create a new application.
+
+    Set the "Redirect URL" for your application to your Streamlit app's URL (e.g., http://localhost:8501).
+
+    Create a folder named .streamlit in your project directory.
+
+    Inside that folder, create a file named secrets.toml.
+
+    Add your API credentials to the secrets.toml file:
+
+    # .streamlit/secrets.toml
+    API_KEY = "YOUR_API_KEY_HERE"
+    CLIENT_ID = "YOUR_CLIENT_ID_HERE"
+
+3. Installation
+
+    Clone or download the project files.
+
+    Create a requirements.txt file with the following content:
+
+    streamlit
+    requests
+    pandas
+    colorlog
+
+    Install the dependencies:
+
+    pip install -r requirements.txt
+
+4. Running the App
+
+    Open your terminal and navigate to the project's root directory.
+
+    Run the following command:
+
+    streamlit run app.py
+
+    The application will open in your web browser, where you can authorize it with your Bungie.net account.
+
+📁 Project Structure
+
+The application is modularized for better organization and maintainability.
+
+d2_armor_analyzer/
+├── app.py                  # Main Streamlit UI and application flow
+├── requirements.txt        # Project dependencies
+├── .streamlit/
+│   └── secrets.toml        # API credentials (not committed to git)
+└── core/
+    ├── __init__.py
+    ├── constants.py        # All static data (URLs, hashes, weights)
+    └── armor_processing.py # Data processing and weight calculation logic
+└── api/
+    ├── __init__.py
+    └── bungie.py           # Functions for Bungie API interaction
+└── utils/
+    ├── __init__.py
+    └── helpers.py          # Logger setup and other utilities
+
