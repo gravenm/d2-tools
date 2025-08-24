@@ -3,6 +3,7 @@ from utils.helpers import *
 from core.constants import *
 from api.bungie import *
 from core.armor_processing import *
+import time
 
 # Setup
 logger = setup_logger()
@@ -34,23 +35,47 @@ with st.expander("How to use?"):
     2.  **Analyze & Filter:** The main panel will display your armor, ranked by the calculated weight. Use the dropdown menu to filter by character class.
     3.  **Shard Assistant:** Use the slider at the bottom of the "Ranked Armor Data" tab to generate a list of your lowest-ranked items, making it easy to clean out your vault.
     """)  
-# --- Authentication Flow ---
+
+# --- Authentication and Token Refresh Flow ---
 query_params = st.query_params.to_dict()
 auth_code = query_params.get("code")
 
+# 1. If we get an auth code back from Bungie, get the initial token
 if auth_code and 'token_data' not in st.session_state:
     with st.spinner("Requesting Access Token..."):
         token_data = get_access_token(auth_code)
         if token_data:
             st.session_state.token_data = token_data
+            st.session_state.token_acquired_time = time.time()
             st.query_params.clear()
             st.rerun()
+
+# 2. Before showing the main app, check if the token is expired and refresh if needed
+if 'token_data' in st.session_state:
+    # Check if more than an hour has passed (3600 seconds)
+    if time.time() - st.session_state.token_acquired_time > st.session_state.token_data['expires_in']:
+        with st.spinner("Your session has expired, refreshing..."):
+            refresh_token = st.session_state.token_data['refresh_token']
+            new_token_data = refresh_access_token(refresh_token)
+            if new_token_data:
+                st.session_state.token_data = new_token_data
+                st.session_state.token_acquired_time = time.time()
+                st.success("Session refreshed!")
+                time.sleep(1) # Give user time to see the message
+                st.rerun()
+            else:
+                # If refresh fails, clear the session to force re-login
+                del st.session_state.token_data
+                st.error("Could not refresh your session. Please authorize again.")
+                time.sleep(2)
+                st.rerun()
 
 if 'token_data' not in st.session_state:
     auth_url = f"{AUTH_URL}?client_id={CLIENT_ID}&response_type=code"
     html_string = f'<h2><a href="{auth_url}" target="_self">Click here to authorize with Bungie.net</a></h2>'
     st.html(html_string)
-    st.info("You will be redirected back here after authorization.")
+    st.info("You will be redirected back here after authorization.")       
+
 else:
     manifest_db = get_manifest()
 
@@ -126,7 +151,7 @@ else:
 
             with tab1:
                 st.dataframe(display_df[['Exotic','Name', 'Total', 'Tier', 'Equippable', 'Armor_Weight', 'Weapons', 'Health', 'Class', 'Grenade', 'Super', 'Melee','Id']].style.format({'Armor_Weight': "{:.2f}"}),hide_index=True)
-
+                st.text(f"Showing {len(display_df)}")
                 st.subheader("Shard Assistant")
                 num_to_shard = st.slider("Number of items to shard", 1, 50, 20)
                 bottom_df = display_df.tail(num_to_shard)

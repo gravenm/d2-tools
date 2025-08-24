@@ -7,6 +7,14 @@ from app import logger
 
 def process_api_data(profile_data, manifest_db):
     logger.info("Starting to process API data...")
+    character_ids_extraction = profile_data['Response']['characterInventories']['data']
+    character_ids = []
+    for character in character_ids_extraction:
+        logger.info(character)
+        character_ids.append(character)
+
+    
+
     vault_items = profile_data['Response']['profileInventory']['data']['items']
     item_stats = profile_data['Response']['itemComponents']['stats']['data']
     item_sockets = profile_data['Response']['itemComponents']['sockets']['data']
