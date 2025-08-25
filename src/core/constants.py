@@ -20,7 +20,13 @@ ARTIFICE_SOCKET_TYPE_HASH = 1433225414
 MASTERWORK_ENERGY_PLUG_CATEGORY_HASH = 2325141259
 GENERAL_ARMOR_MOD_SOCKET_CATEGORY_HASH = 590099826
 EXOTIC_TIER_TYPE = 6
-
+ARMOR_SLOT_HASHES = {
+    45: "Helmet",
+    46: "Gauntlets",
+    47: "Chest Armor",
+    48: "Leg Armor",
+    49: "Class Item",
+}
 # -- Weighting Constants --
 DEFAULT_WEIGHTS = {"BST": 1.0, "Artifice": 1.0}
 ARCHETYPE_WEIGHTS = {

@@ -47,7 +47,6 @@ if auth_code and 'token_data' not in st.session_state:
         if token_data:
             st.session_state.token_data = token_data
             st.session_state.token_acquired_time = time.time()
-            st.query_params.clear()
             st.rerun()
 
 # 2. Before showing the main app, check if the token is expired and refresh if needed
@@ -147,7 +146,7 @@ else:
                 display_df = display_df[display_df["Exotic"] == False]
 
             st.header("Armor Rankings")
-            tab1, tab2 = st.tabs(["📊 Ranked Armor Data", "📈 Summary Statistics"])
+            tab1, tab2, tab3 = st.tabs(["📊 Ranked Armor Data", "📈 Summary Statistics","Idk testing"])
 
             with tab1:
                 st.dataframe(display_df[['Exotic','Name', 'Total', 'Tier', 'Equippable', 'Armor_Weight', 'Weapons', 'Health', 'Class', 'Grenade', 'Super', 'Melee','Id']].style.format({'Armor_Weight': "{:.2f}"}),hide_index=True)
@@ -176,3 +175,46 @@ else:
                 count_by_tier = ranked_df['Tier'].value_counts().reset_index()
                 count_by_tier.columns = ['Tier','Count']
                 st.bar_chart(count_by_tier, x='Tier', y='Count',horizontal=True)
+
+            with tab3:
+                st.subheader("Armor Grouped by Slot and Top 3 Stats")
+                
+                # --- Checkbox Toggles for Filtering ---
+                col1, col2, col3, col4, col5 = st.columns(5)
+                with col1:
+                    helmet_toggle = st.checkbox("Helmets", True)
+                with col2:
+                    arm_toggle = st.checkbox("Gauntlets", True)
+                with col3:
+                    chest_toggle = st.checkbox("Chest", True)
+                with col4:
+                    legs_toggle = st.checkbox("Legs", True)
+                with col5:
+                    class_item_toggle = st.checkbox("Class Item", True)
+                
+                # Create a list of selected slots
+                selected_slots = []
+                if helmet_toggle: selected_slots.append("Helmet")
+                if arm_toggle: selected_slots.append("Gauntlets")
+                if chest_toggle: selected_slots.append("Chest Armor")
+                if legs_toggle: selected_slots.append("Leg Armor")
+                if class_item_toggle: selected_slots.append("Class Item")
+
+                # Filter the dataframe based on selected slots
+                filtered_group_df = display_df[display_df['Slot'].isin(selected_slots)]
+
+                # --- DYNAMICALLY CREATE "Top 3 Stats" COLUMN ---
+                stat_cols = list(STAT_HASH_TO_NAME.values())
+                filtered_group_df['Top 3 Stats'] = filtered_group_df[stat_cols].apply(
+                    lambda row: ', '.join(row.nlargest(3).index), axis=1
+                )
+
+                # Group the filtered data
+                grouped = filtered_group_df.groupby(['Slot', 'Top 3 Stats'])
+
+                for (slot, top_stats), group in grouped:
+                    with st.expander(f"**{slot}** with stats: **{top_stats}** ({len(group)} pieces)"):
+                        st.dataframe(
+                            group[['Name', 'Total', 'Tier', 'Armor_Weight', 'Weapons', 'Health', 'Class', 'Grenade', 'Super', 'Melee']].style.format({'Armor_Weight': "{:.2f}"}),
+                            hide_index=True
+                        )

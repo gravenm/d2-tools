@@ -13,7 +13,7 @@ def process_api_data(profile_data, manifest_db):
         logger.info(character)
         character_ids.append(character)
 
-    
+
 
     vault_items = profile_data['Response']['profileInventory']['data']['items']
     item_stats = profile_data['Response']['itemComponents']['stats']['data']
@@ -87,6 +87,12 @@ def process_api_data(profile_data, manifest_db):
             if exotic_check:
                 is_exotic = True
 
+            slot = "Unknown"
+            for hash_val, name in ARMOR_SLOT_HASHES.items():
+                if hash_val in item_def['itemCategoryHashes']:
+                    slot = name
+                    break
+
             # --- UPDATED TIER LOGIC ---
             tier = 0
             stats_series = pd.Series(base_stats)
@@ -110,6 +116,7 @@ def process_api_data(profile_data, manifest_db):
             armor_data.append({
                 "Name": item_def['displayProperties']['name'],
                 "Id": item['itemInstanceId'],
+                "Slot": slot,                
                 "Equippable": item_def['classType'],
                 "Total": base_total, # Use the calculated base total
                 "Tier": tier,
